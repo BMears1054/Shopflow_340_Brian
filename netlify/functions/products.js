@@ -44,7 +44,15 @@ if (!Number.isInteger(port) || port < 1 || port > 65535) {
 
 
 console.log('Environment variable validation passed.');
-        
+      const caCertificate = process.env.DB_CA_CERT
+    .replace(/\\n/g, '\n')
+    .trim();
+
+console.log('Certificate format check:', {
+    hasBegin: caCertificate.startsWith('-----BEGIN CERTIFICATE-----'),
+    hasEnd: caCertificate.endsWith('-----END CERTIFICATE-----'),
+    hasNewlines: caCertificate.includes('\n')
+});  
  connection = await mysql.createConnection({
     host: process.env.DB_HOST,
     port: port,
