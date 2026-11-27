@@ -66,7 +66,10 @@ if (!Number.isInteger(port) || port < 1 || port > 65535) {
             body: JSON.stringify(rows)
         };
     } catch (error) {
-        console.error('Database error:', error);
+        console.error('Database operation failed.', {
+    code: error.code || 'UNKNOWN',
+    errno: Number.isInteger(error.errno) ? error.errno : null
+});
         return {
             statusCode: 500,
             headers,
