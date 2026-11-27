@@ -20,6 +20,15 @@ exports.handler = async (event, context) => {
         'DB_NAME',
         'DB_CA_CERT'
     ];
+
+        for (const variable of requiredVariables) {
+    if (!process.env[variable]?.trim()) {
+        console.error(variable + ' is missing.');
+        throw new Error('Required database configuration is missing.');
+    }
+
+    console.log(variable + ' is present.');
+}
         if (process.env.DB_USER !== 'shopflow_reader') {
     throw new Error('Unauthorized database account configuration.');
 }
@@ -32,11 +41,7 @@ if (process.env.DB_NAME !== 'shopflow') {
 if (!Number.isInteger(port) || port < 1 || port > 65535) {
     throw new Error('Invalid database port configuration.');
 }
-    for (const variable of requiredVariables) {
-        if (!process.env[variable]?.trim()) {
-            throw new Error('Required database configuration is missing.');
-        }
-    }
+
 
 console.log('Environment variable validation passed.');
         
