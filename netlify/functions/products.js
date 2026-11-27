@@ -37,10 +37,7 @@ if (!Number.isInteger(port) || port < 1 || port > 65535) {
             throw new Error('Required database configuration is missing.');
         }
     }
-const port = Number(process.env.DB_PORT);
 
-if (!Number.isInteger(port) || port < 1 || port > 65535) {
-    throw new Error('Invalid database port configuration.');
 }
         
       connection = await mysql.createConnection({
