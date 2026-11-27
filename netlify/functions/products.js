@@ -60,7 +60,7 @@ console.log('Certificate format check:', {
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
     ssl: {
-        ca: caCertificate,,
+        ca: caCertificate,
         rejectUnauthorized: true,
         verifyIdentity: true,
         minVersion: 'TLSv1.2'
