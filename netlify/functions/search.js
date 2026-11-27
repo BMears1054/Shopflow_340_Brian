@@ -11,7 +11,7 @@ exports.handler = async (event, context) => {
     
     const searchTerm = event.queryStringParameters?.q?.trim();
     
-    if (!searchTerm || searchTerm.length > 100) { {
+    if (!searchTerm || searchTerm.length > 100) { 
         return {
             statusCode: 400,
             headers,
