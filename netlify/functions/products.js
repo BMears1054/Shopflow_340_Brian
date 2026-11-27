@@ -43,10 +43,16 @@ if (!Number.isInteger(port) || port < 1 || port > 65535) {
 }
 
 
-console.log('Environment variable validation passed.');
-      const caCertificate = process.env.DB_CA_CERT
+const certificateBody = process.env.DB_CA_CERT
     .replace(/\\n/g, '\n')
-    .trim();
+    .replace('-----BEGIN CERTIFICATE-----', '')
+    .replace('-----END CERTIFICATE-----', '')
+    .replace(/\s/g, '');
+
+const caCertificate =
+    '-----BEGIN CERTIFICATE-----\n' +
+    certificateBody.match(/.{1,64}/g).join('\n') +
+    '\n-----END CERTIFICATE-----';
 
 console.log('Certificate format check:', {
     hasBegin: caCertificate.startsWith('-----BEGIN CERTIFICATE-----'),
