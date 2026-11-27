@@ -12,17 +12,51 @@ exports.handler = async (event, context) => {
     let connection;
     
     try {
-        connection = await mysql.createConnection({
-            host: process.env.DB_HOST,
-            port: process.env.DB_PORT,
-            user: process.env.DB_USER,
-            password: process.env.DB_PASSWORD,
-            database: process.env.DB_NAME,
-            ssl: {
-                ca: process.env.DB_CA_CERT.replace(/\\n/g, '\n'),
-                rejectUnauthorized: true
-            }
-        });
+            const requiredVariables = [
+        'DB_HOST',
+        'DB_PORT',
+        'DB_USER',
+        'DB_PASSWORD',
+        'DB_NAME',
+        'DB_CA_CERT'
+    ];
+        if (process.env.DB_USER !== 'shopflow_reader') {
+    throw new Error('Unauthorized database account configuration.');
+}
+
+if (process.env.DB_NAME !== 'shopflow') {
+    throw new Error('Invalid database configuration.');
+}
+        const port = Number(process.env.DB_PORT);
+
+if (!Number.isInteger(port) || port < 1 || port > 65535) {
+    throw new Error('Invalid database port configuration.');
+}
+    for (const variable of requiredVariables) {
+        if (!process.env[variable]?.trim()) {
+            throw new Error('Required database configuration is missing.');
+        }
+    }
+const port = Number(process.env.DB_PORT);
+
+if (!Number.isInteger(port) || port < 1 || port > 65535) {
+    throw new Error('Invalid database port configuration.');
+}
+        
+      connection = await mysql.createConnection({
+    host: process.env.DB_HOST,
+    port: port,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+    ssl: {
+        ca: process.env.DB_CA_CERT.replace(/\\n/g, '\n'),
+        rejectUnauthorized: true,
+        verifyIdentity: true,
+        minVersion: 'TLSv1.2'
+    },
+    connectTimeout: 10000
+});
         
         const [rows] = await connection.execute(
             'SELECT product_id, product_name, category, price, stock_quantity FROM products WHERE status = ?',
