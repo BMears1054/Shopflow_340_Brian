@@ -9,30 +9,76 @@ exports.handler = async (event, context) => {
         return { statusCode: 405, headers, body: JSON.stringify({ error: 'Method not allowed' }) };
     }
     
-    const email = event.queryStringParameters?.email;
-    
-    if (!email) {
+  const email = event.queryStringParameters?.email?.trim().toLowerCase();
+
+if (!email || email.length > 255 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
         return {
             statusCode: 400,
             headers,
-            body: JSON.stringify({ error: 'Email required' })
+            body: JSON.stringify({ error: 'Valid email required' })
         };
     }
     
     let connection;
     
     try {
-        connection = await mysql.createConnection({
-            host: process.env.DB_HOST,
-            port: process.env.DB_PORT,
-            user: process.env.DB_USER,
-            password: process.env.DB_PASSWORD,
-            database: process.env.DB_NAME,
-            ssl: {
-                ca: process.env.DB_CA_CERT.replace(/\\n/g, '\n'),
-                rejectUnauthorized: true
-            }
-        });
+        const requiredVariables = [
+        'DB_HOST',
+        'DB_PORT',
+        'DB_USER',
+        'DB_PASSWORD',
+        'DB_NAME',
+        'DB_CA_CERT'
+    ];
+
+        for (const variable of requiredVariables) {
+    if (!process.env[variable]?.trim()) {
+        console.error(variable + ' is missing.');
+        throw new Error('Required database configuration is missing.');
+    }
+
+
+}
+        if (process.env.DB_USER !== 'shopflow_reader') {
+    throw new Error('Unauthorized database account configuration.');
+}
+
+if (process.env.DB_NAME !== 'shopflow') {
+    throw new Error('Invalid database configuration.');
+}
+        const port = Number(process.env.DB_PORT);
+
+if (!Number.isInteger(port) || port < 1 || port > 65535) {
+    throw new Error('Invalid database port configuration.');
+}
+
+
+const certificateBody = process.env.DB_CA_CERT
+    .replace(/\\n/g, '\n')
+    .replace('-----BEGIN CERTIFICATE-----', '')
+    .replace('-----END CERTIFICATE-----', '')
+    .replace(/\s/g, '');
+
+const caCertificate =
+    '-----BEGIN CERTIFICATE-----\n' +
+    certificateBody.match(/.{1,64}/g).join('\n') +
+    '\n-----END CERTIFICATE-----';
+
+ 
+ connection = await mysql.createConnection({
+    host: process.env.DB_HOST,
+    port: port,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+    ssl: {
+        ca: caCertificate,
+        rejectUnauthorized: true,
+        verifyIdentity: true,
+        minVersion: 'TLSv1.2'
+    },
+    connectTimeout: 10000
+});
         
         const [rows] = await connection.execute(
             `SELECT customer_id, first_name, last_name, email,
@@ -54,6 +100,13 @@ exports.handler = async (event, context) => {
             body: JSON.stringify({ error: 'Lookup failed' })
         };
     } finally {
-        if (connection) await connection.end();
+    if (connection) {
+        try {
+            await connection.end();
+        } catch {
+            connection.destroy();
+            console.error('Database connection cleanup failed.');
+        }
     }
+}
 };
