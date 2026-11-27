@@ -100,7 +100,7 @@ const caCertificate =
             headers,
             body: JSON.stringify({ error: 'Search failed' })
         };
-    } } finally {
+    }  finally {
     if (connection) {
         try {
             await connection.end();
