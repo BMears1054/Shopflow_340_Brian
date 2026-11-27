@@ -38,7 +38,7 @@ if (!Number.isInteger(port) || port < 1 || port > 65535) {
         }
     }
 
-
+console.log('Environment variable validation passed.');
         
  connection = await mysql.createConnection({
     host: process.env.DB_HOST,
@@ -54,12 +54,12 @@ if (!Number.isInteger(port) || port < 1 || port > 65535) {
     },
     connectTimeout: 10000
 });
-        
+        console.log('Database connection established.');
         const [rows] = await connection.execute(
             'SELECT product_id, product_name, category, price, stock_quantity FROM products WHERE status = ?',
             ['Active']
         );
-        
+        console.log('Product query completed successfully.');
         return {
             statusCode: 200,
             headers,
