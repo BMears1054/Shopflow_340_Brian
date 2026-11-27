@@ -27,7 +27,7 @@ exports.handler = async (event, context) => {
         throw new Error('Required database configuration is missing.');
     }
 
-    console.log(variable + ' is present.');
+
 }
         if (process.env.DB_USER !== 'shopflow_reader') {
     throw new Error('Unauthorized database account configuration.');
@@ -54,11 +54,7 @@ const caCertificate =
     certificateBody.match(/.{1,64}/g).join('\n') +
     '\n-----END CERTIFICATE-----';
 
-console.log('Certificate format check:', {
-    hasBegin: caCertificate.startsWith('-----BEGIN CERTIFICATE-----'),
-    hasEnd: caCertificate.endsWith('-----END CERTIFICATE-----'),
-    hasNewlines: caCertificate.includes('\n')
-});  
+ 
  connection = await mysql.createConnection({
     host: process.env.DB_HOST,
     port: port,
@@ -73,12 +69,12 @@ console.log('Certificate format check:', {
     },
     connectTimeout: 10000
 });
-        console.log('Database connection established.');
+
         const [rows] = await connection.execute(
             'SELECT product_id, product_name, category, price, stock_quantity FROM products WHERE status = ?',
             ['Active']
         );
-        console.log('Product query completed successfully.');
+
         return {
             statusCode: 200,
             headers,
