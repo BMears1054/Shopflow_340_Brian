@@ -40,7 +40,7 @@ if (!Number.isInteger(port) || port < 1 || port > 65535) {
 
 }
         
-      connection = await mysql.createConnection({
+ connection = await mysql.createConnection({
     host: process.env.DB_HOST,
     port: port,
     user: process.env.DB_USER,
