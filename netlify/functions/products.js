@@ -11,7 +11,7 @@ exports.handler = async (event, context) => {
     
     let connection;
     
-    try {
+    try { 
             const requiredVariables = [
         'DB_HOST',
         'DB_PORT',
